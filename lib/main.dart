@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_player/views/playerScreen/player_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
 
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: PlayerScreen(),
     );
   }
 }
