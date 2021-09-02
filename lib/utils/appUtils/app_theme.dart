@@ -15,13 +15,13 @@ class AppTheme {
 //region AppColors
 class _AppColors {
   //region App Primary Color
-  Color appPrimaryColorRed = Color(0xFFE12026);
-  Color appPrimaryColorWhite = Color(0xFFFFFFFF);
-  Color pageBackground = Color(0xFFF9F9F9);
+  Color appPrimaryColor = Color(0xFFfcf1f5);
+  Color appPrimaryColorWhite = Color(0xFFfffdff);
+  Color pageBackground = Color(0xFFfcf1f5);
   Color appPinkColor = Color(0xFFFFE9E9);
   Color appBlackColor = Color(0xFF2E353A);
   Color appLightGreen = Color(0xFF92E3A9);
-  Color appGrey = Color(0xFFEEEEEE);
+  Color appGrey = Color(0xFFdfdbe0);
   Color textFieldBorder = Color(0xFFADADAD);
   Color focusedTextFieldBorder = Color(0xFF92E3A9);
 
