@@ -16,7 +16,7 @@ class PlayerWidget extends StatefulWidget {
   final Function? onPrevButtonTap;
   final Function? onNextButtonTap;
 
-  PlayerWidget({Key? key, required this.songName, this.albumName="", this.onPlayButtonTap, this.onPrevButtonTap, this.onNextButtonTap}) : super(key: key);
+  PlayerWidget({Key? key, required this.songName, this.albumName = "", this.onPlayButtonTap, this.onPrevButtonTap, this.onNextButtonTap}) : super(key: key);
 
   @override
   _PlayerWidgetState createState() => _PlayerWidgetState();
@@ -53,10 +53,10 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
     });
 
     scaleAnimController = AnimationController(vsync: this, duration: Duration(seconds: 1));
-    scaleAnimation = Tween<double>(begin: 0.9, end: 1.1).animate(scaleAnimController);
+    scaleAnimation = Tween<double>(begin: 0.9, end: 1.2).animate(scaleAnimController);
 
-    slideUpAnimController = AnimationController(vsync: this, duration: Duration(seconds: 1));
-    slideUpAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(slideUpAnimController);
+    slideUpAnimController = AnimationController(vsync: this, duration: Duration(milliseconds: 900));
+    slideUpAnimation = Tween<Offset>(begin: Offset(0, 100), end: Offset(0, 0)).animate(slideUpAnimController);
 
     progressAnimController = AnimationController(vsync: this, duration: Duration(minutes: 1, seconds: 30));
     progressAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(progressAnimController);
@@ -86,59 +86,74 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
                 vertical: SizeConfig.getVerticalSize(0),
                 horizontal: SizeConfig.getHorizontalSize(16),
               ),
-              child: Container(
-                width: double.infinity,
-                height: SizeConfig.getVerticalSize(110),
-                padding: EdgeInsets.symmetric(
-                  vertical: SizeConfig.getVerticalSize(8),
-                  horizontal: SizeConfig.getHorizontalSize(12),
-                ),
-                decoration: BoxDecoration(
-                  color: AppTheme.appColors.pageBackground.withOpacity(1.0),
-                  // color: Colors.red,
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(SizeConfig.getVerticalSize(12)),
-                    topLeft: Radius.circular(SizeConfig.getVerticalSize(12)),
+              child: AnimatedBuilder(
+                animation: slideUpAnimation,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: slideUpAnimation.value,
+                    child: child,
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: SizeConfig.getVerticalSize(110),
+                  padding: EdgeInsets.symmetric(
+                    vertical: SizeConfig.getVerticalSize(12),
+                    horizontal: SizeConfig.getHorizontalSize(12),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      offset: Offset(0, -5),
-                      blurRadius: 15,
-                      spreadRadius: 1,
+                  decoration: BoxDecoration(
+                    color: AppTheme.appColors.pageBackground.withOpacity(1.0),
+                    // color: Colors.red,
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(SizeConfig.getVerticalSize(12)),
+                      topLeft: Radius.circular(SizeConfig.getVerticalSize(12)),
                     ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Expanded(flex: 4, child: Container()),
-                    Expanded(
-                      flex: 6,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Text('Flume'),
-                          Text('Say It'),
-                          Expanded(flex: 1, child: Container()),
-                          AnimatedBuilder(
-                            animation: progressAnimation,
-                            builder: (context, child) {
-                              return ClipRRect(
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                                child: LinearProgressIndicator(
-                                  color: AppTheme.appColors.appProgressIndicatorColor,
-                                  backgroundColor: AppTheme.appColors.appPrimaryColorWhite,
-                                  value: progressAnimation.value,
-                                ),
-                              );
-                            },
-                          ),
-                          Expanded(flex: 2, child: Container()),
-                        ],
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        offset: Offset(0, -5),
+                        blurRadius: 15,
+                        spreadRadius: 1,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(flex: 4, child: Container()),
+                      Expanded(
+                        flex: 6,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Text(
+                              'Flume',
+                              style: TextStyle(fontSize: SizeConfig.getTextSize(16), fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              'Say It',
+                              style: TextStyle(fontSize: SizeConfig.getTextSize(12), color: AppTheme.appColors.greyTextColor),
+                            ),
+                            Expanded(flex: 1, child: Container()),
+                            AnimatedBuilder(
+                              animation: progressAnimation,
+                              builder: (context, child) {
+                                return ClipRRect(
+                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                                  child: LinearProgressIndicator(
+                                    color: AppTheme.appColors.appProgressIndicatorColor,
+                                    backgroundColor: AppTheme.appColors.appPrimaryColorWhite,
+                                    value: progressAnimation.value,
+                                  ),
+                                );
+                              },
+                            ),
+                            Expanded(flex: 2, child: Container()),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -287,8 +302,10 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
       rotationController.forward();
       scaleAnimController.forward();
       progressAnimController.forward();
+      slideUpAnimController.forward();
     } else {
       progressAnimController.stop(canceled: false);
+      slideUpAnimController.reverse();
       scaleAnimController.reverse().then((value) {
         rotationController.stop(canceled: false);
       });

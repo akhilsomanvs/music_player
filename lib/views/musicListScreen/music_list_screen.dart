@@ -1,13 +1,7 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:music_player/controllers/player_controller.dart';
 import 'package:music_player/utils/appUtils/app_theme.dart';
 import 'package:music_player/utils/arch_utils/ui/responsize_builder.dart';
-import 'package:music_player/utils/commonUtils/app_assets.dart';
-import 'package:music_player/utils/commonUtils/size_config.dart';
-import 'package:music_player/utils/widgets/spacing_widgets.dart';
 import 'package:music_player/views/widgets/player_widget.dart';
 
 class MusicListScreen extends StatelessWidget {
