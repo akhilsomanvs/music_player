@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:music_player/controllers/player_controller.dart';
@@ -12,12 +14,10 @@ class MusicListScreen extends StatelessWidget {
 
   MusicListScreen({Key? key}) : super(key: key);
 
-  PlayerController controller = Get.put(PlayerController());
+  // PlayerController controller = Get.put(PlayerController());
 
   @override
   Widget build(BuildContext context) {
-    SizeConfig().init(context);
-    double bottomPadding = SizeConfig.getVerticalSize(12) + SizeConfig.getVerticalSize(12);
     return Scaffold(
       backgroundColor: AppTheme.appColors.pageBackground,
       body: ResponsiveBuilder(
@@ -34,116 +34,173 @@ class MusicListScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Expanded(child: Container()),
-                  Container(
-                    child: Stack(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(top: SizeConfig.getVerticalSize(120)),
-                          child: Container(
-                            height: SizeConfig.getVerticalSize(100),
-                            padding: EdgeInsets.only(
-                              left: SizeConfig.getHorizontalSize(12),
-                              right: SizeConfig.getHorizontalSize(12),
-                              top: SizeConfig.getVerticalSize(12),
-                              bottom: bottomPadding
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppTheme.appColors.appPrimaryColorWhite,
-                              borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(SizeConfig.getVerticalSize(12)),
-                                topLeft: Radius.circular(SizeConfig.getVerticalSize(12)),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.2),
-                                  offset: Offset(0, -10),
-                                  blurRadius: 15,
-                                  spreadRadius: 2,
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Flexible(flex: 4, child: Container()),
-                                Flexible(
-                                  flex: 2,
-                                  child: PlayerIcon(
-                                    icon: Icons.skip_previous,
-                                    onTap: (isActive) {},
-                                  ),
-                                ),
-                                HSpace(8),
-                                Flexible(
-                                  flex: 2,
-                                  child: PlayerIcon(
-                                    icon: Icons.play_arrow,
-                                    canBeActive: true,
-                                    onTap: (isActive) {},
-                                  ),
-                                ),
-                                HSpace(8),
-                                Flexible(
-                                  flex: 2,
-                                  child: PlayerIcon(
-                                    icon: Icons.skip_next,
-                                    onTap: (isActive) {},
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Positioned.fill(
-                          child: Padding(
-                            padding: EdgeInsets.only(bottom: bottomPadding),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Expanded(
-                                  flex: 5,
-                                  child: Transform.scale(
-                                    scale: 1.0,
-                                    alignment: Alignment.bottomCenter,
-                                    child: Transform.rotate(
-                                      angle: 0,
-                                      alignment: Alignment.center,
-                                      child: Container(
-                                        width: SizeConfig.getVerticalSize(120),
-                                        height: SizeConfig.getVerticalSize(120),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.red,
-                                          image: DecorationImage(image: AssetImage(AppAssets.getImagePath("album_placeholder.png")), fit: BoxFit.contain),
-                                        ),
-                                        child: Center(
-                                          child: Container(
-                                            width: SizeConfig.getVerticalSize(24),
-                                            height: SizeConfig.getVerticalSize(24),
-                                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(300), color: Colors.white),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 6,
-                                  child: Container(),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  PlayerWidget(),
                 ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class PlayerWidget extends StatefulWidget {
+  final Function(bool)? onPlayButtonTap;
+  final Function? onPrevButtonTap;
+  final Function? onNextButtonTap;
+
+  PlayerWidget({Key? key, this.onPlayButtonTap, this.onPrevButtonTap, this.onNextButtonTap}) : super(key: key);
+
+  @override
+  _PlayerWidgetState createState() => _PlayerWidgetState();
+}
+
+class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMixin {
+  PlayerController controller = Get.find();
+
+  late AnimationController rotationController;
+  late Animation rotationAnimation;
+
+  @override
+  void initState() {
+    rotationController = AnimationController(vsync: this, duration: Duration(seconds: 3));
+    rotationAnimation = Tween<double>(begin: 0.0, end: 2 * pi).animate(rotationController);
+    rotationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        rotationController.reset();
+        rotationController.forward();
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    SizeConfig().init(context);
+    double bottomPadding = SizeConfig.getVerticalSize(12) + SizeConfig.getVerticalSize(12);
+    return Container(
+      child: Stack(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: SizeConfig.getVerticalSize(120)),
+            child: Container(
+              height: SizeConfig.getVerticalSize(100),
+              padding: EdgeInsets.only(left: SizeConfig.getHorizontalSize(12), right: SizeConfig.getHorizontalSize(12), top: SizeConfig.getVerticalSize(12), bottom: bottomPadding),
+              decoration: BoxDecoration(
+                color: AppTheme.appColors.appPrimaryColorWhite,
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(SizeConfig.getVerticalSize(12)),
+                  topLeft: Radius.circular(SizeConfig.getVerticalSize(12)),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    offset: Offset(0, -10),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Flexible(flex: 4, child: Container()),
+                  Flexible(
+                    flex: 2,
+                    child: PlayerIcon(
+                      icon: Icons.skip_previous,
+                      onTap: (isActive) {
+                        if (widget.onPrevButtonTap != null) {
+                          widget.onPrevButtonTap!();
+                        }
+                      },
+                    ),
+                  ),
+                  HSpace(8),
+                  Flexible(
+                    flex: 2,
+                    child: PlayerIcon(
+                      icon: Icons.play_arrow,
+                      canBeActive: true,
+                      isActive: controller.isPlaying.value,
+                      onTap: (isActive) {
+                        controller.setIsPlaying(isActive);
+                        if (isActive) {
+                          rotationController.forward();
+                        } else {
+                          rotationController.stop(canceled: false);
+                        }
+                        if (widget.onPlayButtonTap != null) {
+                          widget.onPlayButtonTap!(isActive);
+                        }
+                      },
+                    ),
+                  ),
+                  HSpace(8),
+                  Flexible(
+                    flex: 2,
+                    child: PlayerIcon(
+                      icon: Icons.skip_next,
+                      onTap: (isActive) {
+                        if (widget.onNextButtonTap != null) {
+                          widget.onNextButtonTap!();
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: bottomPadding),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: Transform.scale(
+                      scale: 1.0,
+                      alignment: Alignment.bottomCenter,
+                      child: AnimatedBuilder(
+                        animation: this.rotationAnimation,
+                        child: Container(
+                          width: SizeConfig.getVerticalSize(120),
+                          height: SizeConfig.getVerticalSize(120),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.red,
+                            image: DecorationImage(image: AssetImage(AppAssets.getImagePath("album_placeholder.png")), fit: BoxFit.contain),
+                          ),
+                          child: Center(
+                            child: Container(
+                              width: SizeConfig.getVerticalSize(24),
+                              height: SizeConfig.getVerticalSize(24),
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(300), color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        builder: (context, child) {
+                          return Transform.rotate(
+                            angle: this.rotationAnimation.value,
+                            child: child,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 6,
+                    child: Container(),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
