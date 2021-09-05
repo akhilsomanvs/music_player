@@ -35,7 +35,10 @@ class MusicListScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Expanded(child: Container()),
-                  PlayerWidget(),
+                  PlayerWidget(
+                    songName: 'Flume',
+                    albumName: 'Say It',
+                  ),
                 ],
               ),
             ),

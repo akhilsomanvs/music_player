@@ -9,11 +9,14 @@ import 'package:music_player/utils/commonUtils/size_config.dart';
 import 'package:music_player/utils/widgets/spacing_widgets.dart';
 
 class PlayerWidget extends StatefulWidget {
+  final String songName;
+  final String albumName;
+
   final Function(bool)? onPlayButtonTap;
   final Function? onPrevButtonTap;
   final Function? onNextButtonTap;
 
-  PlayerWidget({Key? key, this.onPlayButtonTap, this.onPrevButtonTap, this.onNextButtonTap}) : super(key: key);
+  PlayerWidget({Key? key, required this.songName, this.albumName="", this.onPlayButtonTap, this.onPrevButtonTap, this.onNextButtonTap}) : super(key: key);
 
   @override
   _PlayerWidgetState createState() => _PlayerWidgetState();
@@ -22,13 +25,21 @@ class PlayerWidget extends StatefulWidget {
 class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMixin {
   PlayerController controller = Get.find();
 
-  //Record rotation
+  //Record rotation Animation
   late AnimationController rotationController;
   late Animation rotationAnimation;
 
-  //Record Scale
+  //Record Scale Animation
   late AnimationController scaleAnimController;
   late Animation scaleAnimation;
+
+  //Slide Up Animation
+  late AnimationController slideUpAnimController;
+  late Animation slideUpAnimation;
+
+  //Progress Indicator
+  late AnimationController progressAnimController;
+  late Animation progressAnimation;
 
   @override
   void initState() {
@@ -42,7 +53,18 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
     });
 
     scaleAnimController = AnimationController(vsync: this, duration: Duration(seconds: 1));
-    scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(scaleAnimController);
+    scaleAnimation = Tween<double>(begin: 0.9, end: 1.1).animate(scaleAnimController);
+
+    slideUpAnimController = AnimationController(vsync: this, duration: Duration(seconds: 1));
+    slideUpAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(slideUpAnimController);
+
+    progressAnimController = AnimationController(vsync: this, duration: Duration(minutes: 1, seconds: 30));
+    progressAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(progressAnimController);
+    progressAnimController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        progressAnimController.reset();
+      }
+    });
 
     super.initState();
   }
@@ -50,15 +72,91 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    double bottomPadding = SizeConfig.getVerticalSize(12) + SizeConfig.getVerticalSize(12);
+    double bottomPadding = SizeConfig.getBottomScreenPadding(); // + SizeConfig.getVerticalSize(12);
     return Container(
       child: Stack(
         children: [
+          ///
+          ///Music Details Container
+          ///
+          Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: SizeConfig.getVerticalSize(0),
+                horizontal: SizeConfig.getHorizontalSize(16),
+              ),
+              child: Container(
+                width: double.infinity,
+                height: SizeConfig.getVerticalSize(110),
+                padding: EdgeInsets.symmetric(
+                  vertical: SizeConfig.getVerticalSize(8),
+                  horizontal: SizeConfig.getHorizontalSize(12),
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.appColors.pageBackground.withOpacity(1.0),
+                  // color: Colors.red,
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(SizeConfig.getVerticalSize(12)),
+                    topLeft: Radius.circular(SizeConfig.getVerticalSize(12)),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      offset: Offset(0, -5),
+                      blurRadius: 15,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(flex: 4, child: Container()),
+                    Expanded(
+                      flex: 6,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Text('Flume'),
+                          Text('Say It'),
+                          Expanded(flex: 1, child: Container()),
+                          AnimatedBuilder(
+                            animation: progressAnimation,
+                            builder: (context, child) {
+                              return ClipRRect(
+                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                child: LinearProgressIndicator(
+                                  color: AppTheme.appColors.appProgressIndicatorColor,
+                                  backgroundColor: AppTheme.appColors.appPrimaryColorWhite,
+                                  value: progressAnimation.value,
+                                ),
+                              );
+                            },
+                          ),
+                          Expanded(flex: 2, child: Container()),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          ///
+          ///Player Icons Holder
+          ///
           Padding(
-            padding: EdgeInsets.only(top: SizeConfig.getVerticalSize(120)),
+            padding: EdgeInsets.only(top: SizeConfig.getVerticalSize(80)),
             child: Container(
-              height: SizeConfig.getVerticalSize(100),
-              padding: EdgeInsets.only(left: SizeConfig.getHorizontalSize(12), right: SizeConfig.getHorizontalSize(12), top: SizeConfig.getVerticalSize(12), bottom: bottomPadding),
+              // height: SizeConfig.getVerticalSize(100),
+              padding: EdgeInsets.only(
+                left: SizeConfig.getHorizontalSize(12),
+                right: SizeConfig.getHorizontalSize(12),
+                top: SizeConfig.getVerticalSize(12),
+                bottom: bottomPadding,
+              ),
               decoration: BoxDecoration(
                 color: AppTheme.appColors.appPrimaryColorWhite,
                 borderRadius: BorderRadius.only(
@@ -67,10 +165,10 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    offset: Offset(0, -10),
-                    blurRadius: 15,
-                    spreadRadius: 2,
+                    color: Colors.grey.withOpacity(0.1),
+                    offset: Offset(0, -5),
+                    blurRadius: 5,
+                    spreadRadius: 1,
                   ),
                 ],
               ),
@@ -122,6 +220,10 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
               ),
             ),
           ),
+
+          ///
+          ///Record Holder
+          ///
           Positioned.fill(
             child: Padding(
               padding: EdgeInsets.only(bottom: bottomPadding),
@@ -129,14 +231,14 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
-                    flex: 5,
+                    flex: 4,
                     child: AnimatedBuilder(
                       animation: scaleAnimation,
                       child: AnimatedBuilder(
                         animation: this.rotationAnimation,
                         child: Container(
-                          width: SizeConfig.getVerticalSize(120),
-                          height: SizeConfig.getVerticalSize(120),
+                          width: SizeConfig.getVerticalSize(110),
+                          height: SizeConfig.getVerticalSize(110),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: Colors.red,
@@ -168,7 +270,7 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
                     ),
                   ),
                   Expanded(
-                    flex: 6,
+                    flex: 5,
                     child: Container(),
                   )
                 ],
@@ -184,7 +286,9 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
     if (isActive) {
       rotationController.forward();
       scaleAnimController.forward();
+      progressAnimController.forward();
     } else {
+      progressAnimController.stop(canceled: false);
       scaleAnimController.reverse().then((value) {
         rotationController.stop(canceled: false);
       });

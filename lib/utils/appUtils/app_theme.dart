@@ -19,13 +19,12 @@ class _AppColors {
   Color appPrimaryColorWhite = Color(0xFFfffdff);
   Color pageBackground = Color(0xFFfcf1f5);
   Color appPinkColor = Color(0xFFFFE9E9);
-  Color appBlackColor = Color(0xFF2E353A);
-  Color appLightGreen = Color(0xFF92E3A9);
+  Color appMusicDetailsContainer = Color(0xFFfcf1f5);
   Color appGrey = Color(0xFFdfdbe0);
-  Color textFieldBorder = Color(0xFFADADAD);
-  Color focusedTextFieldBorder = Color(0xFF92E3A9);
+  Color appProgressIndicatorColor = Color(0xFFff3367);
 
   //endregion
+
   //region Text Colors
   Color primaryTextColor = Color(0xFF242E42);
   Color secondaryTextColor = Color(0xFF706A6A);
@@ -36,10 +35,11 @@ class _AppColors {
   Color greenTextColor = Color(0xFF75B687);
 
   //endregion
+
   //region Button Colors
   Color enabledButtonColor = Color(0xFF2E353A);
   Color disabledButtonColor = Color(0xFFB8B8B8);
-//endregion
+  //endregion
 }
 //endregion
 
