@@ -59,8 +59,13 @@ class PlayerWidget extends StatefulWidget {
 class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMixin {
   PlayerController controller = Get.find();
 
+  //Record rotation
   late AnimationController rotationController;
   late Animation rotationAnimation;
+
+  //Record Scale
+  late AnimationController scaleAnimController;
+  late Animation scaleAnimation;
 
   @override
   void initState() {
@@ -72,6 +77,16 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
         rotationController.forward();
       }
     });
+
+    scaleAnimController = AnimationController(vsync: this, duration: Duration(seconds: 1));
+    scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(scaleAnimController);
+    /*scaleAnimController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        scaleAnimController.reset();
+        scaleAnimController.forward();
+      }
+    });*/
+
     super.initState();
   }
 
@@ -129,8 +144,11 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
                         controller.setIsPlaying(isActive);
                         if (isActive) {
                           rotationController.forward();
+                          scaleAnimController.forward();
                         } else {
-                          rotationController.stop(canceled: false);
+                          scaleAnimController.reverse().then((value) {
+                            rotationController.stop(canceled: false);
+                          });
                         }
                         if (widget.onPlayButtonTap != null) {
                           widget.onPlayButtonTap!(isActive);
@@ -162,9 +180,8 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
                 children: [
                   Expanded(
                     flex: 5,
-                    child: Transform.scale(
-                      scale: 1.0,
-                      alignment: Alignment.bottomCenter,
+                    child: AnimatedBuilder(
+                      animation: scaleAnimation,
                       child: AnimatedBuilder(
                         animation: this.rotationAnimation,
                         child: Container(
@@ -186,10 +203,18 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
                         builder: (context, child) {
                           return Transform.rotate(
                             angle: this.rotationAnimation.value,
+                            alignment: Alignment.center,
                             child: child,
                           );
                         },
                       ),
+                      builder: (context, child) {
+                        return Transform.scale(
+                          scale: scaleAnimation.value,
+                          alignment: Alignment.bottomCenter,
+                          child: child,
+                        );
+                      },
                     ),
                   ),
                   Expanded(
