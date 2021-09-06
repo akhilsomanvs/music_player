@@ -208,6 +208,7 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
                     flex: 2,
                     child: PlayerIcon(
                       icon: Icons.play_arrow,
+                      activeIcon: Icons.pause,
                       canBeActive: true,
                       isActive: controller.isPlaying.value,
                       onTap: (isActive) {
@@ -315,6 +316,7 @@ class _PlayerWidgetState extends State<PlayerWidget> with TickerProviderStateMix
 
 class PlayerIcon extends StatefulWidget {
   final IconData icon;
+  final IconData? activeIcon;
   final bool isActive;
   final bool canBeActive;
   final Function(bool)? onTap;
@@ -322,6 +324,7 @@ class PlayerIcon extends StatefulWidget {
   PlayerIcon({
     Key? key,
     required this.icon,
+    this.activeIcon,
     this.isActive = false,
     this.canBeActive = false,
     this.onTap,
@@ -370,7 +373,7 @@ class _PlayerIconState extends State<PlayerIcon> {
             borderRadius: BorderRadius.circular(SizeConfig.getVerticalSize(12)),
           ),
           child: Icon(
-            widget.icon,
+            widget.activeIcon == null ? widget.icon : (this.isPressed ? widget.activeIcon : widget.icon),
             color: this.isPressed ? AppTheme.appColors.appPrimaryColorWhite : AppTheme.appColors.appGrey,
           ),
         ),
